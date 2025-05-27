@@ -8,10 +8,6 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "engines": {
-    "node": ">=18.17.1",
-    "npm": ">=9.6.7"
-  },
   "packageManager": "npm@11.4.0",
   "overrides": {
     "react": "$react",
@@ -19,6 +15,7 @@
     "next": "$next"
   },
   "dependencies": {
+    "@sanity/client": "^7.1.0",
     "@sanity/image-url": "^1.1.0",
     "@sanity/vision": "^3.88.3",
     "@sentry/nextjs": "^9.22.0",
