@@ -8,6 +8,10 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "engines": {
+    "node": ">=18.17.1",
+    "npm": ">=9.6.7"
+  },
   "packageManager": "npm@11.4.0",
   "overrides": {
     "react": "$react",
