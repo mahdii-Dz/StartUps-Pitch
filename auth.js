@@ -1,39 +1,50 @@
-import NextAuth from "next-auth"
-import Github from "next-auth/providers/github"
-import { client } from "./sanity/lib/client"
-import { AUTHOR_BY_ID_QUERY } from "./sanity/lib/queries"
-import { writeClient } from "./sanity/lib/write-client"
-
+import NextAuth from "next-auth";
+import Github from "next-auth/providers/github";
+import { client } from "./sanity/lib/client";
+import { AUTHOR_BY_ID_QUERY } from "./sanity/lib/queries";
+import { writeClient } from "./sanity/lib/write-client";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [Github],
-  callbacks:{
-    async signIn({user:{name,email,image},profile:{id,login,bio}}){
-      const existingUser = await client.withConfig({useCdn:false}).fetch(AUTHOR_BY_ID_QUERY,{id})
+  trustedHosts: [
+    "startup-pitch.netlify.app",
+    "main--startup-pitch.netlify.app",
+    /.*--startup-pitch\.netlify\.app$/, // Regex for all preview deploys
+  ],
+  callbacks: {
+    async signIn({
+      user: { name, email, image },
+      profile: { id, login, bio },
+    }) {
+      const existingUser = await client
+        .withConfig({ useCdn: false })
+        .fetch(AUTHOR_BY_ID_QUERY, { id });
 
-      if(!existingUser){
+      if (!existingUser) {
         await writeClient.create({
-          _type:'author',
-          id:id,
+          _type: "author",
+          id: id,
           name,
-          username:login,
+          username: login,
           email,
           image,
-          bio:bio || "",
-        })
+          bio: bio || "",
+        });
       }
       return true;
     },
-    async jwt({token,account,profile}){
-      if(account &&profile){
-        const user = await client.withConfig({useCdn:false}).fetch(AUTHOR_BY_ID_QUERY,{id:profile?.id})
-        token.id = user?.id
+    async jwt({ token, account, profile }) {
+      if (account && profile) {
+        const user = await client
+          .withConfig({ useCdn: false })
+          .fetch(AUTHOR_BY_ID_QUERY, { id: profile?.id });
+        token.id = user?.id;
       }
-      return token
+      return token;
     },
-    async session({session,token}) {
-      Object.assign(session,{id:token.id})
+    async session({ session, token }) {
+      Object.assign(session, { id: token.id });
       return session;
-    }
-  }
-})
+    },
+  },
+});
